@@ -1,0 +1,72 @@
+<div class="chat-container" [class.open]="isOpen">
+  <button class="chat-toggle" (click)="toggleChat()">
+    <span class="material-icons">chat</span>
+    @if (unreadCount > 0) {
+      <span class="unread-badge">{{ unreadCount }}</span>
+    }
+  </button>
+
+  <div class="chat-panel">
+    <div class="chat-header">
+      <h3>Messages</h3>
+      <button class="close-btn" (click)="toggleChat()">×</button>
+    </div>
+
+    <div class="chat-content">
+      @if (!selectedPatient) {
+        <div class="patient-list">
+          @for (patient of getUniquePatients(); track patient.patientId) {
+            <div 
+              class="patient-item" 
+              [class.has-unread]="hasUnreadMessages(patient.patientId)"
+              (click)="selectPatient(patient.patientId)"
+            >
+              <div class="patient-info">
+                <span class="patient-name">{{ patient.patientName }}</span>
+                <span class="patient-id">ID: {{ patient.patientId }}</span>
+              </div>
+              @if (hasUnreadMessages(patient.patientId)) {
+                <span class="unread-indicator"></span>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="chat-messages">
+          <div class="chat-header">
+            <button class="back-btn" (click)="selectedPatient = null">←</button>
+            <div class="selected-patient">
+              <span class="patient-name">{{ getPatientName(selectedPatient) }}</span>
+              <span class="patient-id">ID: {{ selectedPatient }}</span>
+            </div>
+          </div>
+          
+          <div class="messages-container">
+            @for (msg of getPatientMessages(selectedPatient); track msg.id) {
+              <div 
+                class="message" 
+                [class.from-patient]="msg.isFromPatient"
+                [class.from-provider]="!msg.isFromPatient"
+              >
+                <div class="message-content">{{ msg.message }}</div>
+                <div class="message-time">
+                  {{ msg.timestamp | date:'short' }}
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="message-input">
+            <input 
+              type="text" 
+              [(ngModel)]="newMessage" 
+              (keyup.enter)="sendMessage()"
+              placeholder="Type a message..."
+            >
+            <button (click)="sendMessage()">Send</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

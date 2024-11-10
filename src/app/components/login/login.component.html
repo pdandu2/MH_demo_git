@@ -1,0 +1,49 @@
+<div class="login-container">
+  <div class="login-card">
+    <h1>Mental Health Portal</h1>
+    
+    @if (!showLoginForm) {
+      <div class="role-selection">
+        <button (click)="selectRole('provider')" class="role-btn provider-btn">
+          Login as Provider
+        </button>
+        <button (click)="selectRole('patient')" class="role-btn patient-btn">
+          Login as Patient
+        </button>
+      </div>
+    } @else {
+      <div class="login-form">
+        <h2>Login as {{ selectedRole | titlecase }}</h2>
+        
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            [(ngModel)]="email" 
+            placeholder="demo@mail.com"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            [(ngModel)]="password" 
+            placeholder="Enter password"
+          >
+        </div>
+
+        @if (error) {
+          <div class="error-message">{{ error }}</div>
+        }
+        
+        <div class="form-actions">
+          <button (click)="back()" class="back-btn">Back</button>
+          <button (click)="login()" class="login-btn">Login</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

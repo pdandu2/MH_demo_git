@@ -1,0 +1,40 @@
+<div class="patient-list">
+  <div class="header">
+    <h2>Patients</h2>
+    <button class="add-btn" (click)="onboardNewPatient()">+ New Patient</button>
+  </div>
+
+  @if (!disableSearch) {
+    <div class="controls">
+      <div class="search-bar">
+        <input 
+          type="text" 
+          placeholder="Search patients..." 
+          [(ngModel)]="searchTerm"
+          (input)="filterPatients()"
+        >
+      </div>
+      <button 
+        class="sort-btn" 
+        (click)="toggleSort()"
+        [class.desc]="sortDirection === 'desc'"
+      >
+        Sort by Score
+      </button>
+    </div>
+  }
+
+  <div class="patients-container">
+    @for (patient of filteredPatients; track patient.id) {
+      <div class="patient-card" (click)="selectPatient(patient)">
+        <div class="patient-info">
+          <h3>{{ patient.name }}</h3>
+          <p>Last assessment: {{ patient.lastAssessment }}</p>
+        </div>
+        <div class="patient-score" [ngClass]="getScoreClass(patient.score)">
+          {{ patient.score }}
+        </div>
+      </div>
+    }
+  </div>
+</div>

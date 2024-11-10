@@ -1,0 +1,99 @@
+<div class="dashboard">
+  <header class="header">
+    <div class="header-left">
+      <h1>Provider Dashboard</h1>
+      <div class="datetime">{{ currentDateTime | date:'medium' }}</div>
+    </div>
+    <button class="sign-out-btn" (click)="signOut()">Sign Out</button>
+  </header>
+  
+  <div class="dashboard-grid">
+    <!-- First Row -->
+    <section class="first-row">
+      <div class="patients-section">
+        <app-patient-list  (patientSelected)="onPatientSelected($event)"></app-patient-list>
+      </div>
+      <div class="sessions-section">
+        <app-sessions></app-sessions>
+      </div>
+    </section>
+
+    <!-- Second Row -->
+    <section class="second-row">
+      <div class="progress-header">
+        @if (!selectedProgressPatient) {
+          <h2>Patient Progress</h2>
+        }
+        @if (selectedProgressPatient) {
+          <h2>{{ selectedProgressPatient.name }} Progress</h2>
+        }
+        
+        <div class="progress-controls">
+          <div class="search-control">
+            <div class="search-results">
+              <input 
+                type="text" 
+                placeholder="Search patient..."
+                [(ngModel)]="patientSearch"
+                (input)="onPatientSearchChange()"
+              >
+              @if (patientSearch && filteredPatients.length > 0) {
+                <div class="results-dropdown">
+                  @for (patient of filteredPatients; track patient.id) {
+                    <div 
+                      class="patient-item" 
+                      (click)="selectProgressPatient(patient)"
+                    >
+                      {{ patient.name }}
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+          <div class="date-controls">
+            <input 
+              type="date" 
+              [(ngModel)]="startDate"
+              (change)="onDateChange()"
+            >
+            <span>to</span>
+            <input 
+              type="date" 
+              [(ngModel)]="endDate"
+              (change)="onDateChange()"
+            >
+          </div>
+        </div>
+      </div>
+      <div class="chart-container">
+        @if (selectedProgressPatient) {
+          <app-chart [selectedPatientId]="getSelectedPatientId()"></app-chart>
+        } @else {
+          <div class="no-patient-selected">
+            Please select a patient to view their progress
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Third Row -->
+    <section class="fourth-row">
+      <div class="journal-section">
+        <app-action-plans [selectedPatientId]="getSelectedPatientId()"></app-action-plans>
+      </div>
+    </section>
+
+    <!-- Fourth Row -->
+    <section class="third-row">
+      <div class="medication-section">
+        <app-medication [patientId]="getSelectedPatientId()"></app-medication>
+      </div>
+      <div class="action-plans-section">
+        <app-journal [selectedPatientId]="getSelectedPatientId()"></app-journal>
+      </div>
+    </section>
+  </div>
+
+  <app-chat></app-chat>
+</div>

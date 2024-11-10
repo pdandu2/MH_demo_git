@@ -1,139 +1,118 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface ActionPlan {
-  id: number;
-  title: string;
-  description: string;
-  status: 'active' | 'completed' | 'pending';
-}
+import { ActionPlanCardComponent, ActionPlan } from './action-plan-card.component';
 
 @Component({
   selector: 'app-action-plans',
+  templateUrl: './action-plans.component.html',
+  styleUrls: ['./action-plans.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  template: `
-    <div class="action-plans">
-      <h2>Action Plans</h2>
-      <div class="plans-list">
-        @for (plan of plans; track plan.id) {
-          <div class="plan-card">
-            <div class="plan-info">
-              <h3>{{ plan.title }}</h3>
-              <p>{{ plan.description }}</p>
-            </div>
-            <div class="plan-actions">
-              <span class="status-badge" [class]="plan.status">
-                {{ plan.status | titlecase }}
-              </span>
-              <button class="assign-btn">Assign</button>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-  `,
-  styles: [`
-    .action-plans {
-      height: 100%;
-    }
-
-    h2 {
-      color: #1e293b;
-      margin-bottom: 1rem;
-    }
-
-    .plan-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      border: 1px solid #e2e8f0;
-      border-radius: 0.375rem;
-      margin-bottom: 0.5rem;
-      background-color: white;
-    }
-
-    .plan-info {
-      flex: 1;
-    }
-
-    .plan-info h3 {
-      color: #1e293b;
-      margin: 0;
-      font-size: 1rem;
-    }
-
-    .plan-info p {
-      color: #64748b;
-      margin: 0.25rem 0 0;
-      font-size: 0.875rem;
-    }
-
-    .plan-actions {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .status-badge {
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-    }
-
-    .status-badge.active {
-      background-color: #dcfce7;
-      color: #16a34a;
-    }
-
-    .status-badge.completed {
-      background-color: #e0f2fe;
-      color: #0369a1;
-    }
-
-    .status-badge.pending {
-      background-color: #fef3c7;
-      color: #d97706;
-    }
-
-    .assign-btn {
-      padding: 0.5rem 1rem;
-      background-color: #3b82f6;
-      color: white;
-      border: none;
-      border-radius: 0.375rem;
-      cursor: pointer;
-      font-size: 0.875rem;
-    }
-
-    .assign-btn:hover {
-      background-color: #2563eb;
-    }
-  `]
+  imports: [CommonModule, FormsModule, ActionPlanCardComponent]
 })
 export class ActionPlansComponent {
   @Input() selectedPatientId: string = '';
 
+  showAssignForm = false;
+  selectedPlan: ActionPlan | null = null;
+  currentDate = new Date().toISOString().split('T')[0];
+  
+  reminderTimes = ['morning', 'afternoon', 'evening', 'night'] as const;
+  
+  assignmentDetails = {
+    startDate: '',
+    endDate: '',
+    reminderTime: [] as typeof this.reminderTimes[number][]
+  };
+
   plans: ActionPlan[] = [
     { 
       id: 1, 
-      title: 'Daily Mindfulness', 
-      description: '15-minute daily meditation practice',
-      status: 'active'
+      title: 'Clinical Disorders Assessment', 
+      description: 'Daily assessment of clinical disorder symptoms',
+      status: 'active',
+      showQuestions: false,
+      questions: [
+        { id: 1, text: 'Little interest or pleasure in doing things' },
+        { id: 2, text: 'Feeling down, depressed, or hopeless' },
+        { id: 3, text: 'Trouble falling or staying asleep, or sleeping too much' },
+        { id: 4, text: 'Feeling tired or having little energy' },
+        { id: 5, text: 'Poor appetite or overeating' },
+        { id: 6, text: 'Feeling bad about yourself—or that you are a failure or have let yourself or your family down' },
+        { id: 7, text: 'Trouble concentrating on things, such as reading the newspaper or watching television' },
+        { id: 8, text: 'Thoughts that you would be better off dead or of hurting yourself' }
+      ]
     },
     { 
       id: 2, 
       title: 'Sleep Hygiene', 
       description: 'Structured bedtime routine',
-      status: 'pending'
+      status: 'pending',
+      showQuestions: false
     },
     { 
       id: 3, 
       title: 'Exercise Routine', 
       description: '30-minute daily walking',
-      status: 'completed'
+      status: 'completed',
+      showQuestions: false
     }
   ];
+
+  toggleAssignment(plan: ActionPlan) {
+    if (plan.assignedTo === (this.selectedPatientId ? +this.selectedPatientId : null)) {
+      plan.assignedTo = undefined;
+      plan.assignmentDetails = undefined;
+    } else {
+      this.selectedPlan = plan;
+      this.showAssignForm = true;
+    }
+  }
+
+  toggleQuestions(plan: ActionPlan) {
+    plan.showQuestions = !plan.showQuestions;
+  }
+
+  isTimeSelected(time: string): boolean {
+    return this.assignmentDetails.reminderTime.includes(time as any);
+  }
+
+  toggleReminderTime(time: typeof this.reminderTimes[number]) {
+    const index = this.assignmentDetails.reminderTime.indexOf(time);
+    if (index === -1) {
+      this.assignmentDetails.reminderTime.push(time);
+    } else {
+      this.assignmentDetails.reminderTime.splice(index, 1);
+    }
+  }
+
+  isAssignmentValid(): boolean {
+    return !!(
+      this.assignmentDetails.startDate &&
+      this.assignmentDetails.endDate &&
+      this.assignmentDetails.reminderTime.length > 0
+    );
+  }
+
+  confirmAssignment() {
+    if (this.selectedPlan && this.isAssignmentValid() && this.selectedPatientId) {
+      this.selectedPlan.assignedTo = +this.selectedPatientId;
+      this.selectedPlan.assignmentDetails = {
+        startDate: this.assignmentDetails.startDate,
+        endDate: this.assignmentDetails.endDate,
+        reminderTimes: [...this.assignmentDetails.reminderTime]
+      };
+      this.cancelAssignment();
+    }
+  }
+
+  cancelAssignment() {
+    this.showAssignForm = false;
+    this.selectedPlan = null;
+    this.assignmentDetails = {
+      startDate: '',
+      endDate: '',
+      reminderTime: []
+    };
+  }
 }

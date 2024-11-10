@@ -1,0 +1,72 @@
+<div class="action-plans">
+  <h2>Action Plans</h2>
+  
+  @if (!showAssignForm) {
+    <div class="plans-list">
+      @for (plan of plans; track plan.id) {
+        <app-action-plan-card
+          [plan]="plan"
+          [selectedPatientId]="selectedPatientId ? +selectedPatientId : null"
+          (toggleAssignment)="toggleAssignment(plan)"
+          (toggleQuestions)="toggleQuestions(plan)"
+        ></app-action-plan-card>
+      }
+    </div>
+  } @else {
+    <div class="assign-form-container">
+      <div class="assign-form">
+        <div class="form-header">
+          <h3>Assign Action Plan: {{ selectedPlan?.title }}</h3>
+          <button class="close-btn" (click)="cancelAssignment()">×</button>
+        </div>
+        
+        <div class="form-content">
+          <div class="form-group">
+            <label>Start Date *</label>
+            <input 
+              type="date" 
+              [(ngModel)]="assignmentDetails.startDate"
+              [min]="currentDate"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label>End Date *</label>
+            <input 
+              type="date" 
+              [(ngModel)]="assignmentDetails.endDate"
+              [min]="assignmentDetails.startDate || currentDate"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label>Reminder Times *</label>
+            <div class="reminder-times">
+              @for (time of reminderTimes; track time) {
+                <label class="checkbox-label">
+                  <input 
+                    type="checkbox"
+                    [checked]="isTimeSelected(time)"
+                    (change)="toggleReminderTime(time)"
+                  >
+                  {{ time | titlecase }}
+                </label>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="cancel-btn" (click)="cancelAssignment()">Cancel</button>
+          <button 
+            class="save-btn" 
+            (click)="confirmAssignment()"
+            [disabled]="!isAssignmentValid()"
+          >
+            Save Assignment
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

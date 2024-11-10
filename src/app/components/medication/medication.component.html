@@ -1,0 +1,105 @@
+<div class="medication">
+  <div class="header">
+    <h2>Medications</h2>
+    <button class="add-btn" (click)="showAddForm = true">+ Add Medication</button>
+  </div>
+
+  <div class="content-scroll">
+    @if (showAddForm) {
+      <div class="add-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Medicine Name & Dosage</label>
+            <input 
+              type="text" 
+              [(ngModel)]="newMed.name" 
+              placeholder="e.g., Aspirin 200mg"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>Frequency</label>
+            <div class="checkbox-group">
+              <label>
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="newMed.frequency.morning"
+                > Morning
+              </label>
+              <label>
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="newMed.frequency.afternoon"
+                > Afternoon
+              </label>
+              <label>
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="newMed.frequency.night"
+                > Night
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Timing</label>
+            <select [(ngModel)]="newMed.timing">
+              <option value="before">Before Meal</option>
+              <option value="after">After Meal</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Start Date</label>
+            <input 
+              type="date" 
+              [(ngModel)]="newMed.startDate"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>End Date</label>
+            <input 
+              type="date" 
+              [(ngModel)]="newMed.endDate"
+            >
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="cancel-btn" (click)="cancelAdd()">Cancel</button>
+          <button class="save-btn" (click)="addMedication()">Save</button>
+        </div>
+      </div>
+    }
+
+    <div class="medications-list">
+      @for (med of medications; track med.id) {
+        <div class="medication-card">
+          <div class="med-header">
+            <h3>{{ med.name }}</h3>
+            <span class="timing-badge" [class]="med.timing">
+              {{ med.timing === 'before' ? 'Before Meal' : 'After Meal' }}
+            </span>
+          </div>
+          <div class="med-details">
+            <div class="frequency">
+              @if (med.frequency.morning) {
+                <span class="time-badge">Morning</span>
+              }
+              @if (med.frequency.afternoon) {
+                <span class="time-badge">Afternoon</span>
+              }
+              @if (med.frequency.night) {
+                <span class="time-badge">Night</span>
+              }
+            </div>
+            <div class="dates">
+              {{ med.startDate }} - {{ med.endDate }}
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

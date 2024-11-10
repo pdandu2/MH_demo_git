@@ -1,0 +1,16 @@
+<div class="journal">
+  <h2>Patient Journal</h2>
+  <div class="journal-entries">
+    @for (entry of entries; track entry.id) {
+      <div class="journal-entry">
+        <div class="entry-header">
+          <h3>{{ entry.date }}</h3>
+          <span class="mood-indicator" [style.backgroundColor]="entry.moodColor">
+            {{ entry.mood }}
+          </span>
+        </div>
+        <p>{{ entry.content }}</p>
+      </div>
+    }
+  </div>
+</div>
